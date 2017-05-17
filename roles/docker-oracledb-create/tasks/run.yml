@@ -56,7 +56,4 @@
 - name: "{{dbname}} - Oraclesql file execution"
   shell: cat ~/oracle_sys_settings_{{dbname}}.sql | docker exec -i {{dbname}} sqlplus / as sysdba
 
-- name: "{{dbname}} - Disable spatial"
-  shell: docker exec -i {{dbname}} sqlplus / as sysdba @\$ORACLE_HOME/md/admin/mddins.sql
-
 - include: database_running.yml

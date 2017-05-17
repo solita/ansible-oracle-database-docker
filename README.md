@@ -33,6 +33,10 @@ To see state of machine you can run query running docker containers:
 ```
 [root@dbvagrant ~]# docker ps
 ```
+To use sqlplus for testdb:
+```
+[root@dbvagrant ~]# docker exec -it testdb sqlplus / as sysdba
+```
 To see state of testdb you can run query for system resource using:
 ```
 [root@dbvagrant ~]# docker stats testdb

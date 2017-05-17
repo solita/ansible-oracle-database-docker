@@ -7,13 +7,13 @@ Ip address can be changed in Vagrantfile and environment file needed.
 
 Username and password is vagrant.
 
-### Presteps
+### Configuration (must)
 Edit places marked with TODO tag in project.
 Basically you need to type url where to download Oracle installation zip-files.
 
 You can also add installation zip-files ( linuxamd64_12102_database_1of2.zip and linuxamd64_12102_database_2of2.zip ) under to files/ -directory .
 
-#### Run commands on project root folder
+### Run commands on project root folder
 Create machine or re-provision machine
 ```
 vagrant up --provision
@@ -26,9 +26,12 @@ Log in to machine ssh
 ```
 vagrant ssh
 ```
-#### Other tips
-After log in to machine write sudo -i to gain sudo privileges.
-
+### Other tips
+After log in to machine run sudo -i to gain root privileges for shell.
+```
+[vagrant@dbvagrant ~]$ sudo -i
+[root@dbvagrant ~]# 
+```
 To see state of machine you can run query running docker containers:
 ```
 [root@dbvagrant ~]# docker ps

@@ -1,9 +1,0 @@
-alter system set session_cached_cursors={{ oracle_session_cached_cursors | default(50) }} scope=spfile;
-
-ALTER SYSTEM SET MAX_MEMORY_TARGET = {{oracle_memory_limit}}M scope=spfile;
-ALTER SYSTEM SET MEMORY_TARGET = {{oracle_memory_limit}}M scope=spfile;
-ALTER SYSTEM SET SGA_TARGET = 0 scope=spfile;
-ALTER SYSTEM SET PGA_AGGREGATE_TARGET = 0 scope=spfile;
-
-ALTER USER SYS IDENTIFIED BY "{{oracle_dba_all_password}}";
-ALTER USER SYSTEM IDENTIFIED BY "{{oracle_dba_all_password}}";

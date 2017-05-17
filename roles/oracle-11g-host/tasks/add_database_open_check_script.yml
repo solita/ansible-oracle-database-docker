@@ -1,7 +1,0 @@
-- name: "Add database running tester script"
-  copy:
-    src: database_running_test.sh
-    dest: /home/oracle/scripts/database_running_test.sh
-    owner: oracle
-    group: oinstall
-    mode: 0750

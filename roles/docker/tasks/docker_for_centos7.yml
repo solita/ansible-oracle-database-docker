@@ -1,0 +1,2 @@
+- name: "Install Docker service"
+  shell: curl -fsSL https://get.docker.com/ | sh

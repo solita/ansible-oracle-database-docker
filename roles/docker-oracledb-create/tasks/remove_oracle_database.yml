@@ -1,0 +1,4 @@
+- name: "{{dbname}} - oracledb remove"
+  shell: |
+    docker rm -f {{dbname}} \
+    || echo already removed

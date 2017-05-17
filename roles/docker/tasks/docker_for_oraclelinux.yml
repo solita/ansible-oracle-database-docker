@@ -1,0 +1,15 @@
+- name: "Add docker repo"
+  copy:
+    src: oracle_docker.repo
+    dest: /etc/yum.repos.d/docker.repo
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Docker-group"
+  group: name=docker
+  notify: reload and restart docker
+
+- name: "Install Docker service"
+  yum: name="docker-engine"
+  notify: reload and restart docker

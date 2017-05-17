@@ -1,0 +1,16 @@
+# TODO
+patch_download_url_with_ending_slash: http://fill_me/
+
+oracledb_patches:
+  - id: 21948354
+    description: Patch 21948354 DATABASE PATCH SET UPDATE 12.1.0.2.160119 (INCLUDES CPUJAN2016)
+    file_name: p21948354_121020_Linux-x86-64.zip
+    dirs_to_run_patch:
+      - directory: 21948354
+        opatch_command_arguments: apply -silent
+  - id: 25171037
+    description: PSU Patch 25171037 - Database Patch Set Update 12.1.0.2.170418 (Q2/2017)
+    file_name: p25171037_121020_Linux-x86-64.zip
+    dirs_to_run_patch:
+      - directory: 25171037
+        opatch_command_arguments: apply -silent

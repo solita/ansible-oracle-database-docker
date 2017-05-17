@@ -1,0 +1,13 @@
+- name: "{{dbname}} - oracledb run"
+  shell: |
+    docker run -d \
+    --restart=always \
+    -v /mnt/oradata/{{dbname}}:/opt/oracle/oradata  \
+    -v /mnt/common_oracle_datapump:/mnt/common_oracle_datapump:rshared  \
+    -p {{ ansible_host }}:{{ port }}:1521  \
+    -p {{ ansible_host }}:1{{ port }}:5500  \
+    --name={{dbname}}  \
+    --log-opt max-size=10m --log-opt max-file=3  \
+    --shm-size {{docker_oracle_memory_mb}}m \
+    -e ORACLE_SID={{dbname}} \
+    oracle-repository:{{oracledb_version}}

@@ -1,0 +1,7 @@
+- name: Tarkistetaan onko epel jo asennettu
+  stat: path=/etc/yum.repos.d/epel.repo
+  register: epel_repo_file
+  tags: epel
+
+- include: rhel7.yml
+  when: ansible_os_family == 'RedHat' and ansible_distribution_version.split('.')[0]|int == 7 and not epel_repo_file.stat.exists

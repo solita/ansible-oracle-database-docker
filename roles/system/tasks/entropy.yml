@@ -1,0 +1,5 @@
+- name: "Paketit: haveged"
+  yum: name=haveged
+
+- name: "haveged service"
+  service: name=haveged state=started enabled=yes

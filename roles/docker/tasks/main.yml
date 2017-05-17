@@ -1,0 +1,36 @@
+- include: disk.yml
+
+- include: docker_for_oraclelinux.yml
+  when: "'oraclelinux7' in group_names"
+
+- include: docker_for_centos7.yml
+  when: "'centos7' in group_names"
+
+- name: Docker configuration folder
+  file: path=/etc/systemd/system/docker.service.d state=directory
+
+- name: "Add Docker OPTIONS"
+  template:
+    src: docker.conf.j2
+    dest: /etc/systemd/system/docker.service.d/docker.conf
+  notify: reload and restart docker
+
+- name: "Docker service is activated"
+  service: name=docker enabled=yes
+
+- name: "Docker service is running"
+  shell: "systemctl status docker"
+  register: docker_service_status
+  failed_when: false
+  changed_when: docker_service_status.rc != 0
+  notify: reload and restart docker
+
+- name: Flush reload handlers
+  meta: flush_handlers
+
+- name: "Verify Docker service is working via running hello-world container"
+  shell: docker run --rm hello-world
+  changed_when: false
+
+
+- include: cleanup_docker.yml

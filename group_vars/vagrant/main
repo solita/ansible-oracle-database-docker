@@ -1,0 +1,17 @@
+oracledb_version: testplatform-oracle12ee
+resolv_conf_content: none
+
+docker_oracle_databases:
+    - name: testdb
+      port: 8000
+      sys_password: mainpassword
+      docker_oracle_memory_mb: 2000
+      oracle_memory_mb: 500
+      create_from_scratch: true
+      database_base_clause:
+        - common_data_pump_dir
+      patches:
+        25171037
+
+docker_storage_disk: /dev/sdb1
+oracledata_storage_disk: /dev/sdc1

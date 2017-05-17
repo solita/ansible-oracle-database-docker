@@ -1,0 +1,10 @@
+[Unit]
+Description = Docker Image Store
+
+[Mount]
+What = {{docker_uid.stdout}}
+Where = /var/lib/docker
+Type = btrfs
+
+[Install]
+WantedBy = multi-user.target

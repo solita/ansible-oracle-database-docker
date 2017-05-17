@@ -1,0 +1,5 @@
+- include: run.yml
+  with_flattened:
+    - "{{ docker_oracle_databases }}"
+  loop_control:
+    loop_var: database

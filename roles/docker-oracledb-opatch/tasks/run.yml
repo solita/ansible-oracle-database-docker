@@ -1,0 +1,7 @@
+- name: "{{database.name}} - Update OPatch"
+  shell: |
+    docker exec {{database.name}} sh -c '$ORACLE_HOME/OPatch/opatch version && \
+      wget -q {{opatch_download_url_for_zip}} -O /tmp/opatch.zip && \
+      rm -fR $ORACLE_HOME/OPatch && \
+      unzip -qq /tmp/opatch.zip -d $ORACLE_HOME && \
+      $ORACLE_HOME/OPatch/opatch version'

@@ -1,0 +1,20 @@
+- block:
+    - name: "{{oracle_sid}} - Oracle system template"
+      template:
+        src: oracle_sys_settings.sql.j2
+        dest: /tmp/oracle_sys_settings_{{oracle_sid}}.sql
+
+    - include: run_as_oracle_sysdba.yml sql_files_string="/tmp/oracle_sys_settings_{{oracle_sid}}.sql"
+
+    - name: Restart dbora
+      systemd:
+        name: dbora.service
+        state: restarted
+        daemon_reload: yes
+
+    - include: database_open.yml
+
+  always:
+    - file:
+        path: /tmp/oracle_sys_settings_{{oracle_sid}}.sql
+        state: absent

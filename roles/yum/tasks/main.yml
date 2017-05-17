@@ -1,0 +1,24 @@
+
+- name: Yum pakettien asennus
+  yum:
+    name: zip
+    update_cache: yes
+
+- name: Yum pakettien asennus
+  yum: name={{ pkg }}
+  with_items:
+    - unzip
+    - perl
+    - iptables-services
+    - net-tools
+    - perl-Data-Dumper
+    - nano
+    - iptraf
+    - mlocate
+    - parallel
+  loop_control:
+    loop_var: pkg
+
+- name: Yum pakettien päivitys
+  yum: name="*" state=latest
+  when: "{{yum_update_all | default(false)}}"

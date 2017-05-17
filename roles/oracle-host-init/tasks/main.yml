@@ -1,0 +1,17 @@
+
+- include: oracle_option_settings.yml
+- include: oracle_sys_settings.yml
+
+- debug: var=database_base_clause
+
+- name: install rsync
+  yum:
+    name: rsync
+
+- include: create_base_database.yml
+  vars:
+    src_directory: "{{base_clause}}"
+  with_items:
+    - "{{ database_base_clause | default() }}"
+  loop_control:
+    loop_var: base_clause

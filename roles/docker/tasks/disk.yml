@@ -1,0 +1,58 @@
+- name: Install btrfs-progs
+  yum: name="btrfs-progs"
+  notify: reload and restart docker
+
+- name: Create physical device to lvm for docker
+  shell: pvcreate {{docker_storage_disk}}
+  register: docker_pv
+  failed_when: docker_pv.rc != 0 and docker_pv.rc != 5
+  changed_when: docker_pv.rc == 0
+
+- name: Create vg group for docker
+  shell: vgcreate {{docker_storage_vg}} {{docker_storage_disk}}
+  register: docker_vg
+  failed_when: docker_vg.rc != 0 and docker_vg.rc != 3
+  changed_when: docker_vg.rc == 0
+
+- name: Create docker logical volume to 100% of PVs
+  lvol:
+    vg: "{{docker_storage_vg}}"
+    lv: docker-lv
+    size: 100%PVS
+
+- name: Format docker logical volume
+  filesystem:
+    fstype: btrfs
+    dev: /dev/docker/docker-lv
+
+- name: Get uid for disk
+  shell: blkid /dev/docker/docker-lv  | gawk '{print $2}'
+  register: docker_uid
+  changed_when: false
+
+- name: Copy fs mount service template with uid
+  template:
+    src: var-lib-docker.mount.j2
+    dest: /etc/systemd/system/var-lib-docker.mount
+
+- name: Create docker home directory
+  file:
+    path: /var/lib/docker
+    state: directory
+
+- name: Enable var lib docker mount
+  systemd:
+    name: var-lib-docker.mount
+    enabled: yes
+    daemon_reload: yes
+    state: started
+
+- name: Create /etc/systemd/system/docker.service.d
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+
+- name: Make sure mount is done before docker service
+  copy:
+    dest: /etc/systemd/system/docker.service.d/var-lib-docker-mount.conf
+    src: var-lib-docker-mount.conf

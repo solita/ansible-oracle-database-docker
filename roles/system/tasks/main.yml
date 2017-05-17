@@ -1,0 +1,23 @@
+- name: Set hostname as inventory hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Set machine hostname to the /etc/hosts file inventory hostname and inventory hostname first part
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^{{ ansible_host }}'
+    line: "{{ ansible_host }} {{ inventory_hostname }} {{ inventory_hostname.split('.')[0]}}"
+    insertbefore: BOF
+
+- name: Set liikemail to /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: 'liikemail$'
+    line: "{{ smtp_server_addr }} liikemail"
+
+- include: entropy.yml
+
+- name: Disable selinux
+  selinux:
+    state: disabled
+

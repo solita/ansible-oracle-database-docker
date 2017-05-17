@@ -1,0 +1,17 @@
+- name: "{{database.name}} - Wait for database be open"
+  shell: 'docker logs {{database.name}} | grep "DATABASE IS READY TO USE"'
+  register: database_running
+  until: database_running.rc == 0
+  retries: "40"
+  delay: 15
+  changed_when: false
+  failed_when: false
+
+- name: "{{database.name}} - Wait for database be open via sql login"
+  shell: 'echo select 1 from dual | docker exec -i {{database.name}} sqlplus / as sysdba'
+  register: database_running
+  until: 'database_running.rc == 0 and "Connected to an idle instance." not in database_running.stdout'
+  retries: "20"
+  delay: 4
+  changed_when: false
+  failed_when: false

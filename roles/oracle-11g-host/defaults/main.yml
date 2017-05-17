@@ -1,0 +1,15 @@
+oracle_disks:
+  - p13390677_112040_Linux-x86-64_1of7.zip
+  - p13390677_112040_Linux-x86-64_2of7.zip
+
+oracle_install_file_directory: "/opt/oracle/install"
+oracle_disk_download_location: http://fill_me/
+
+oracle_sid: DB11G
+oracle_home_db_dir: db11g
+
+oracle_ee_options_list: oracle.rdbms.partitioning:11.2.0.4.0
+oracle_memory_limit: 1000
+
+system_oracle_user_password: oracle
+oracle_dba_all_password: oracle

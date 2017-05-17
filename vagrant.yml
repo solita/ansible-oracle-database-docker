@@ -1,0 +1,17 @@
+---
+- name: Vagrant environment
+  hosts: vagrant
+  any_errors_fatal: true
+  become: True
+  tasks:
+    - parted:
+        device: /dev/sdb
+        number: 1
+        state: present
+    - parted:
+        device: /dev/sdc
+        number: 1
+        state: present
+
+- include: site.yml
+

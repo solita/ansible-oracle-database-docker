@@ -1,0 +1,62 @@
+- set_fact:
+    dbname: "{{db_instance.name}}"
+    sys_password: "{{db_instance.sys_password}}"
+    oracledb_version: "{{ db_instance.oracledb_version | default(oracledb_version) }}"
+    docker_oracle_memory_mb: "{{db_instance.docker_oracle_memory_mb}}"
+    port: "{{ db_instance.port }}"
+    create_from_scratch: "{{db_instance.create_from_scratch}}"
+
+- include: remove_oracle_database.yml
+
+- name: "{{dbname}} - Create from scratch"
+  file:
+    path: /mnt/oradata/{{dbname}}
+    state: absent
+  when: "{{create_from_scratch | default(false)}}"
+
+- name: "{{dbname}} - Create db home under mnt (local disk)"
+  file:
+    path: /mnt/oradata/{{dbname}}
+    state: directory
+    owner: 54321
+    group: 54321
+
+- name: "{{dbname}} - Create datapump under oradata (local disk)"
+  file:
+    path: /mnt/common_oracle_datapump
+    state: directory
+    owner: 500
+    group: 500
+
+- name: "{{dbname}} - Remove old datapump dir"
+  file:
+    path: /mnt/oradata/{{dbname}}/pump
+    state: absent
+
+- name: "{{dbname}} - Make datapump link to common directory"
+  file:
+    src: /mnt/common_oracle_datapump
+    dest: /mnt/oradata/{{dbname}}/pump
+    owner: 500
+    group: 500
+    state: link
+
+- include: start_oracle_database.yml
+
+- include: database_running.yml
+
+- name: "{{dbname}} - Password set for sys"
+  debug: msg={{sys_password }}
+
+- name: "{{dbname}} - Oraclesql file template"
+  template:
+    src: oracle_sys_settings.sql.j2
+    dest: ~/oracle_sys_settings_{{dbname}}.sql
+
+- name: "{{dbname}} - Oraclesql file execution"
+  shell: cat ~/oracle_sys_settings_{{dbname}}.sql | docker exec -i {{dbname}} sqlplus / as sysdba
+
+- name: "{{dbname}} - Disable spatial"
+  shell: docker exec -i {{dbname}} sqlplus / as sysdba @\$ORACLE_HOME/md/admin/mddins.sql
+
+- include: database_running.yml

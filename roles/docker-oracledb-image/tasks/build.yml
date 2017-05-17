@@ -1,0 +1,85 @@
+- set_fact:
+    temp_dir_body: "{{ ansible_date_time.iso8601_micro }}"
+- set_fact:
+    docker_working_directory: "/tmp/workspace_ansible_{{ansible_user_id}}/{{ temp_dir_body }}/{{ oracledb_version }}"
+
+- debug: msg="Rakennetaan Docker image oracle versio {{ oracledb_version }}"
+- debug: msg="Työ suoritetaan väliaikaisessa hakemistossa {{ docker_working_directory }}"
+
+- shell: docker images | grep oracle/database | gawk '{print $2}' | grep {{docker_oracle_base_version}}
+  register: image_exists
+  failed_when: false
+
+- block:
+    - name: "Temp dir for building base image"
+      file: name={{ docker_working_directory }}/docker-images-master/OracleDatabase/dockerfiles state=directory
+
+    - name: "Copy files to build dir"
+      copy: src=12.1.0.2 dest={{ docker_working_directory }}/docker-images-master/OracleDatabase/dockerfiles
+
+    - name: "Copy disk 1 if exists"
+      copy:
+        src: linuxamd64_12102_database_1of2.zip
+        dest: '{{ docker_working_directory }}/docker-images-master/OracleDatabase/dockerfiles/12.1.0.2/linuxamd64_12102_database_1of2.zip'
+      failed_when: false
+
+    - name: "Copy disk 2 if exists"
+      copy:
+        src: linuxamd64_12102_database_2of2.zip
+        dest: '{{ docker_working_directory }}/docker-images-master/OracleDatabase/dockerfiles/12.1.0.2/linuxamd64_12102_database_2of2.zip'
+      failed_when: false
+
+    - name: "Download oracle disk1"
+      get_url:
+        url: "{{oracle_disk_1_url}}"
+        dest: '{{ docker_working_directory }}/docker-images-master/OracleDatabase/dockerfiles/12.1.0.2/linuxamd64_12102_database_1of2.zip'
+      failed_when: false
+
+    - name: "Download oracle disk2 "
+      get_url:
+        url: "{{oracle_disk_1_url}}"
+        dest: '{{ docker_working_directory }}/docker-images-master/OracleDatabase/dockerfiles/12.1.0.2/linuxamd64_12102_database_2of2.zip'
+      failed_when: false
+
+    - name: "Add execute right for files"
+      shell: chmod 755 {{ docker_working_directory }}/docker-images-master/OracleDatabase/dockerfiles/12.1.0.2/*.sh
+
+    - name: "Build Oracle Database docker image"
+      shell: docker build -t oracle/database:{{docker_oracle_base_version}} --shm-size=2G -f Dockerfile.ee .
+      register: out
+      args:
+        chdir: '{{ docker_working_directory }}/docker-images-master/OracleDatabase/dockerfiles/12.1.0.2'
+
+    - debug: var=out
+#  always:
+#    - name: Remove building dir
+#      file:
+#        name: "{{ docker_working_directory }}"
+#        state: absent
+  when: image_exists.rc != 0
+
+
+- block:
+    - name: "Temp dir for building own database image"
+      file: name={{ docker_working_directory }} state=directory
+
+    - name: "Copy files to build dir"
+      copy: src=files/image dest={{ docker_working_directory }}
+
+    - name: Add Dockerfile
+      template: src=Dockerfile.j2 dest='{{ docker_working_directory }}/image/Dockerfile'
+
+    - name: Add createDB.sh file
+      template: src=createDB.sh.j2 dest='{{ docker_working_directory }}/image/createDB.sh'
+
+    - name: dbca.tmpl tiedosto
+      template: src=oracle-docker-dbca.rsp.tmpl.j2 dest='{{ docker_working_directory }}/image/dbca.rsp.tmpl'
+
+    - name: chmod to files
+      shell: chmod 755 {{ docker_working_directory }}/image/*.sh
+
+    - name: Build docker image
+      shell: docker build -t oracle-repository:{{ oracledb_version }} {{ docker_working_directory }}/image
+#  always:
+#    - name: Remove building dir
+#      file: name={{ docker_working_directory }} state=absent

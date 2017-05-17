@@ -1,0 +1,9 @@
+- name: install epel-repo rpm RHEL7
+  yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+  register: epel7
+  tags: epel
+
+- name: install rpm-gpg-key-epel-7
+  command: /bin/rpm --import https://fedoraproject.org/static/352C64E5.txt
+  when: epel7.changed
+  tags: epel

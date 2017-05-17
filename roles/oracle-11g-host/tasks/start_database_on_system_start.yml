@@ -1,0 +1,44 @@
+- name: Start database automatically
+  lineinfile:
+    dest: /etc/oratab
+    line: "{{oracle_sid}}:/u01/app/oracle/product/11.2.0.4/{{oracle_home_db_dir}}:Y:"
+    regexp: "^{{oracle_sid}}:"
+    create: yes
+
+- name: "oracle_startup.sh script"
+  template:
+    src: oracle_startup.sh.j2
+    dest: /home/oracle/scripts/startup.sh
+    mode: 0750
+    owner: oracle
+    group: oinstall
+
+- name: "oracle_shutdown.sh script"
+  template:
+    src: oracle_shutdown.sh.j2
+    dest: /home/oracle/scripts/shutdown.sh
+    mode: 0750
+    owner: oracle
+    group: oinstall
+
+
+- name: "Oracle dbora auto boot script"
+  template:
+    src: dbora.service.j2
+    dest: /lib/systemd/system/dbora.service
+    mode: 0750
+
+#- name: "dbora auto boot to /etc/systemd/system/"
+#  file:
+#    src: /lib/systemd/system/dbora.service
+#    dest: /etc/systemd/system/dbora.service
+#    state: link
+
+- name: Enable dbora
+  systemd:
+    name: dbora.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
+- include: database_open.yml

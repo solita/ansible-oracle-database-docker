@@ -1,0 +1,42 @@
+
+- name: 'DB {{database.name}} - Patch info for {{patch.id}}'
+  debug:
+    var: patch
+
+- name: 'DB {{database.name}} - Patch {{patch.id}} - Download and extract'
+  shell: |
+    docker exec {{database.name}} sh -c 'rm -fR /tmp/nowpatching && \
+      mkdir -p /tmp/nowpatching && \
+      wget -q {{oracle_patch_download_url_with_ending_slash}}{{patch.file_name}} -O /tmp/nowpatching/patch.zip && \
+      unzip -q /tmp/nowpatching/patch.zip -d /tmp/nowpatching/'
+
+- name: 'DB {{database.name}} - Patch {{patch.id}} - Shutdown database and listener'
+  shell: |
+    docker exec {{database.name}} sh -c '
+       echo shutdown immediate | sqlplus / as sysdba ;
+       lsnrctl stop || echo Listener already stopped'
+
+- name: "DB {{database.name}} - Patch {{patch.id}} - Apply patch"
+  shell: |
+    docker exec {{database.name}} sh -c ' \
+      cd /tmp/nowpatching/{{subpatch.directory}}; \
+      opatch {{subpatch.opatch_command_arguments}}'
+  register: opatchResult
+  failed_when: opatchResult.rc != 0 or "OPatch succeeded" not in opatchResult.stdout
+  with_items:
+    - "{{patch.dirs_to_run_patch}}"
+  loop_control:
+    loop_var: subpatch
+
+- name: 'DB {{database.name}} - Patch {{patch.id}} - Start database without listener and run datapatch'
+  shell: |
+    docker exec {{database.name}} sh -c ' \
+       echo startup | sqlplus / as sysdba; \
+       datapatch -verbose;'
+  register: datapatchResult
+  failed_when: datapatchResult.rc != 0 or "SQL Patching tool complete on" not in datapatchResult.stdout
+
+- name: 'DB {{database.name}} - Patch {{patch.id}} - Restart database docker container'
+  shell: docker restart {{database.name}}
+
+- include: database_running.yml

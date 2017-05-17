@@ -1,0 +1,8 @@
+
+- name: Verify database is open
+  shell: su - oracle -c '/home/oracle/scripts/database_running_test.sh'
+  register: database_running
+  until: database_running.rc == 0
+  retries: "15"
+  delay: 3
+  changed_when: false

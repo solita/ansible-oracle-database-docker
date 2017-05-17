@@ -1,0 +1,15 @@
+docker_storage_vg: docker
+docker_options: -s btrfs --bip=172.17.42.1/24
+
+docker_netddata_email_addr: random.email@localhost
+
+docker_netdata_memory: 400m
+docker_oracle_automatic_memory_management_switch: TRUE
+
+oracledata_storage_vg: oracledata
+oracledata_storage_lvol: oracledata-lvol
+
+docker_oracle_base_version: 12.1.0.2-ee-v1
+
+docker_storage_disk: /dev/xvdb1
+oracledata_storage_disk: /dev/xvdc1

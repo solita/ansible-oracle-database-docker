@@ -1,0 +1,36 @@
+- name: Create physical device to lvm for oracle
+  shell: pvcreate {{oracledata_storage_disk}}
+  register: docker_pv
+  failed_when: docker_pv.rc != 0 and docker_pv.rc != 5
+  changed_when: docker_pv.rc == 0
+
+- name: Create vg group for oracle
+  shell: vgcreate {{oracledata_storage_vg}} {{oracledata_storage_disk}}
+  register: docker_vg
+  failed_when: docker_vg.rc != 0 and docker_vg.rc != 3
+  changed_when: docker_vg.rc == 0
+
+- name: Create oracle logical volume to 100% of PVs
+  lvol:
+    vg: "{{oracledata_storage_vg}}"
+    lv: "{{oracledata_storage_lvol}}"
+    size: 100%PVS
+
+- name: Format oracle lvol
+  filesystem:
+    fstype: xfs
+    dev: /dev/{{oracledata_storage_vg}}/{{oracledata_storage_lvol}}
+
+- name: "Create oracledata folder(local disk)"
+  file:
+    path: /mnt/oradata
+    state: directory
+    owner: 500
+    group: 500
+
+- name: Mount oradata
+  mount:
+    name: /mnt/oradata
+    src: /dev/{{oracledata_storage_vg}}/{{oracledata_storage_lvol}}
+    fstype: xfs
+    state: mounted

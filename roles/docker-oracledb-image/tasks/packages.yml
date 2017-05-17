@@ -1,0 +1,31 @@
+- name: Install yum packages
+  yum: name={{ pkg }}
+  with_items:
+    - wget
+    - curl
+    - nano
+    - bzip2
+    - zip
+    - unzip
+    - httpd-tools
+    - rsync
+    - mailx
+    - ruby
+    - iptraf
+    - python
+    - ntp
+    - python34
+    - python34-pip
+  loop_control:
+    loop_var: pkg
+
+- name: Install pip packages
+  pip: name="{{pkg}}" executable="pip3"
+  with_items:
+    - boto
+    - boto3
+    - simplejson
+    - docker-py
+    - awscli
+  loop_control:
+    loop_var: pkg

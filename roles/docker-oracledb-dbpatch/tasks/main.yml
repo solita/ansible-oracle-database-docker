@@ -1,0 +1,6 @@
+- include: patch_database.yml
+  when: '"patches" in database'
+  with_items:
+    - "{{ docker_oracle_databases }}"
+  loop_control:
+    loop_var: database

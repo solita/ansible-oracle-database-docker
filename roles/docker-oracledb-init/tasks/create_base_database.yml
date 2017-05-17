@@ -1,0 +1,14 @@
+
+- name: "{{dbname}} - {{ src_directory }} - Copy database base clause files to server"
+  synchronize:
+    src: "{{ src_directory }}/"
+    dest: "/tmp/database_base_clause_{{dbname}}"
+    recursive: yes
+    delete: yes
+    compress: true
+
+- name: "{{dbname}} - {{ src_directory }} - Run database base clause sql files"
+  shell: |
+    cat /tmp/database_base_clause_{{dbname}}/*.sql | \
+    docker exec -i {{dbname}} \
+    sqlplus / as sysdba

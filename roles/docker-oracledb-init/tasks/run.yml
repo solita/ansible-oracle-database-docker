@@ -1,0 +1,12 @@
+- set_fact:
+    dbname: "{{db_instance.name}}"
+    sys_password: "{{db_instance.sys_password}}"
+    database_base_clause: "{{ db_instance.database_base_clause | default() }}"
+
+- include: create_base_database.yml
+  vars:
+    src_directory: "{{base_clause}}"
+  with_items:
+    - "{{ database_base_clause | default() }}"
+  loop_control:
+    loop_var: base_clause

@@ -1,0 +1,32 @@
+
+- name: Adding resolv.conf
+  copy:
+    content: "{{resolv_conf_content}}"
+    dest: /etc/resolv.conf
+  when: resolv_conf_content|default("none") != "none"
+
+- name: "libselinux-python package installed"
+  yum: name=libselinux-python
+
+- name: "Sysctl kernel panic reboot -setting to reboot automatically"
+  sysctl: name=kernel.panic value=5 reload=yes
+
+- name: "iptables disabled"
+  service: name=iptables state=stopped enabled=no
+  failed_when: false
+
+- name: "firewalld disabled"
+  service: name=firewalld state=stopped enabled=no
+
+- name: "ntp package installed"
+  yum: name=ntp
+
+- name: "ntpd-service on"
+  service: name=ntpd state=started enabled=yes
+
+- name: clean ansible workspaces
+  cron:
+    name: "clean ansible workspaces tmps"
+    minute: "2"
+    hour: "*"
+    job: 'find /tmp/workspace_ansible* -maxdepth 1 -mtime +5 | xargs -n 1 rm -fR'

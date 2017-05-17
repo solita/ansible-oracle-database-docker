@@ -1,0 +1,16 @@
+
+- name: docker docker-cleanup on
+  shell: |
+    docker rm -f docker-cleanup; \
+    docker run -d --name=docker-cleanup \
+     -e DEBUG=1 \
+     -e DELAY_TIME=1800 \
+     -e CLEAN_PERIOD=3600 \
+     --restart=always \
+     -m 100m \
+     --cpu-shares 10 \
+     -v /var/run/docker.sock:/var/run/docker.sock:rw \
+     -v /var/lib/docker:/var/lib/docker:rw \
+     --net=none \
+     docker.io/meltwater/docker-cleanup
+

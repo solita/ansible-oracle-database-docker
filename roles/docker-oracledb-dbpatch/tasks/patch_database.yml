@@ -1,0 +1,6 @@
+- include: run_patch.yml
+  when: '"{{patch.id}}" in "{{database.patches}}"'
+  with_items:
+    - "{{ oracledb_patches }}"
+  loop_control:
+    loop_var: patch

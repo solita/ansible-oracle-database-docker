@@ -1,0 +1,19 @@
+
+- name: Stop dbora
+  systemd:
+    name: dbora.service
+    state: stopped
+
+- name: Run chopt option changer in oracle home
+  shell: su - oracle -c 'cd $ORACLE_HOME; chopt {{opt.status}} {{opt.name}}'
+  with_items:
+    - "{{oracle_ee_options}}"
+  loop_control:
+    loop_var: opt
+
+- name: Start dbora
+  systemd:
+    name: dbora.service
+    state: started
+
+- include: database_open.yml

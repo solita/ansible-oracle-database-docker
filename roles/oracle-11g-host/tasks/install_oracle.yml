@@ -1,0 +1,65 @@
+- name: "Creating install file directory"
+  file:
+    name: "{{ oracle_install_file_directory }}"
+    state: directory
+
+- name: Install oracle-rdbms-server-11gR2-preinstall
+  yum:
+    name: oracle-rdbms-server-11gR2-preinstall
+    state: present
+
+- name: Making directories for oracle user
+  file:
+    name: "{{dir}}"
+    state: directory
+    recurse: yes
+    owner: oracle
+    group: oinstall
+    mode: 0775
+  with_items:
+    - /opt/oracle
+    - /home/oracle/scripts
+    - /u01/app/oracle
+    - "/u01/app/oracle/product/11.2.0.4/{{oracle_home_db_dir}}"
+    - /u01
+  loop_control:
+    loop_var: dir
+
+- include: download_installation_media.yml
+- include: unzip_installation_media.yml
+
+- user:
+    name: oracle
+    update_password: always
+    password: "{{system_oracle_user_password}}"
+
+- name: Creating extension for oracle bash profile
+  template:
+    src: oracle_bash_profile.j2
+    dest: /home/oracle/.bash_profile
+    mode: "u+rwx"
+    owner: oracle
+    group: oinstall
+
+- name: "Oracle installation template to tmp"
+  template:
+    src: 11gR2.rsp.j2
+    dest: /tmp/11gR2.rsp
+
+- include: add_database_open_check_script.yml
+
+- name: Install oracle database
+  shell: "su - oracle -c 'cd {{ oracle_install_file_directory }}/database; ./runInstaller -waitforcompletion -silent -showprogress -force -ignorePrereq -responseFile /tmp/11gR2.rsp'"
+
+- include: database_open.yml
+
+- name: Ora install root
+  shell: ./orainstRoot.sh
+  args:
+    chdir: "/u01/app/oraInventory"
+
+- name: Ora install {{oracle_sid}} root
+  shell: ./root.sh
+  args:
+    chdir: "/u01/app/oracle/product/11.2.0.4/{{oracle_home_db_dir}}"
+

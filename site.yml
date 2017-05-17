@@ -1,0 +1,29 @@
+---
+- name: Dev environemnt
+  hosts: all
+  any_errors_fatal: true
+  become: True
+  roles:
+    - { role: system, tags: ['system'] }
+    - { role: yum, tags: ['yum'] }
+
+- name: Dev docker oracle env
+  hosts: dbdev
+  any_errors_fatal: true
+  become: True
+  roles:
+    - { role: docker, tags: ['docker'] }
+    - { role: docker-netdata, tags: ['netdata'] }
+    - { role: docker-oracledb-image, tags: ['oracledb-image'] }
+    - { role: docker-oracledb-create, tags: ['oracledb-create'] }
+    - { role: docker-oracledb-opatch, tags: ['oracledb-opatch'] }
+    - { role: docker-oracledb-dbpatch, tags: ['oracledb-dbpatch'] }
+    - { role: docker-oracledb-init, tags: ['oracledb-init'] }
+
+- name: Dev environemnt
+  hosts: oracle11g-host
+  any_errors_fatal: true
+  become: True
+  roles:
+    - { role: oracle-11g-host, tags: ['11gh'] }
+    - { role: oracle-host-init, tags: ['oracle-init'] }

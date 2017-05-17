@@ -1,0 +1,11 @@
+[vagrant_platform]
+dbvagrant ansible_host=192.168.50.50
+
+[vagrant:children]
+vagrant_platform
+
+[oraclelinux7:children]
+vagrant_platform
+
+[dbdev:children]
+vagrant_platform

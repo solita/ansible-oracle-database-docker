@@ -1,0 +1,10 @@
+
+- name: "{{oracle_sid}} - {{ src_directory }} - Copy database base clause files to server"
+  synchronize:
+    src: "{{ src_directory }}/"
+    dest: "/tmp/database_base_clause_{{oracle_sid}}"
+    recursive: yes
+    delete: yes
+    compress: true
+
+- include: run_as_oracle_sysdba.yml sql_files_string="/tmp/database_base_clause_{{oracle_sid}}/*.sql"

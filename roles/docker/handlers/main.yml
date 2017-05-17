@@ -1,0 +1,3 @@
+- name: reload and restart docker
+  shell: systemctl daemon-reload && systemctl stop docker && systemctl start docker
+  changed_when: true

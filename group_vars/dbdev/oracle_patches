@@ -1,5 +1,5 @@
 # TODO
-patch_download_url_with_ending_slash: http://fill_me/
+oracle_patch_download_url_with_ending_slash: http://fill_me/
 
 oracledb_patches:
   - id: 21948354

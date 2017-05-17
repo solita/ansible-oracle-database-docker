@@ -13,7 +13,6 @@
   become: True
   roles:
     - { role: docker, tags: ['docker'] }
-    - { role: docker-netdata, tags: ['netdata'] }
     - { role: docker-oracledb-image, tags: ['oracledb-image'] }
     - { role: docker-oracledb-create, tags: ['oracledb-create'] }
     - { role: docker-oracledb-opatch, tags: ['oracledb-opatch'] }
